@@ -1,0 +1,69 @@
+Create/Load Wallet AT^BCWALT
+Command	Response(s)
+Write Command:
+^BCWALT=<protocol_type>,<wallet_name>[,<wallet_config>]	^BCWALT: <wallet_index>
+OK
+Test Command:
+^BCWALT=?	+BCWALT: (list of supported <protocol_type>s)
+OK
+Features: Create/load wallet, corresponding to BiotWalletCreate().
+
+Parameters: <protocol_type>: integer type
+
+1: Ethereum
+2: Hyper Ledger Fabric (not yet supported)
+3: PlatON
+4: PlatONE
+<wallet_name>: string type; a string of wallet name
+
+<wallet_config>: string type; A JSON string representing the wallet configuration of <protocol_type>. The exact format is manufacture specific.
+
+<wallet_index>: integer type; the index of the created wallet
+
+Unload Wallet AT^BUWALT
+Command	Response(s)
+Write Command:
+^BUWALT=	
+OK
+Test Command:
+^BUWALT=?	+BUWALT: (list of loadeded <wallet_index>s)
+OK
+Features: Unload wallet，corresponding to BiotWalletUnload ().
+
+Parameters: <wallet_index>: integer type; wallet index to unload, previously returned by ^BCWALT
+
+Delete Wallet AT^BDWALT
+Command	Response(s)
+Write Command:
+^BDWALT=<wallet_name>	
+OK
+Features: Delete the created persistent wallet, corresponding to BiotWalletDelete()。
+
+Parameters: <wallet_name>: string type; the name of the wallet to delete
+
+Contract Function Call AT^BCALLFUNC
+Command	Response(s)
+Write Command:
+^BCALLFUNC=<wallet_index>,<tx_object>	
+OK
+Features: Initiating a contract call corresponds to the C call interface generated according to the contract ABI JSON file.
+
+Parameters: <wallet_index>: integer type; wallet index combined with the contract call, previously returned by ^BCWALT
+
+<tx_object>: string type; A JSON string representing the transaction object as per the generated C contract interface. The exact format is manufacture specific.
+
+<wallet_index>: integer type; the index of the created wallet
+
+Transfer AT^BTRANS
+Command	Response(s)
+Write Command:
+^BTRANS=<wallet_index>,<recipient>,<value>	
+OK
+Features: Initiate a transfer of the designated Wallet (not all blockchains support transfers). For example, for Ethereum, it corresponds to BiotEthTransfer().
+
+Parameters: <wallet_index>: integer type; wallet index combined with the transfer (the payer), previously returned by ^BCWALT
+
+<recipient>: string type; A HEX string representing the recipient (payee) address.
+
+<value>: integer type; the value to transfer, represented by the smallest token unit of the protocol (e.g. for Ethereum, the unit is wei or 10-18 ether).
+
