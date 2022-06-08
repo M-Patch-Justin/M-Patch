@@ -1,0 +1,118 @@
+Transaction Data Structure and Function Realization List
+
+A transaction is a signed message, transmitted through the blockchain network and recorded on the blockchain. The functions of transaction interfaces provided by different blockchains are basically the same.
+
+For Ethereum/Polygon/PlatON/PlatONE/FISCO BCOS:
+
+The transaction should contain at least the following elements:
+
+The data structure of the wallet
+Transaction identification
+Messages required for transactions
+The transaction should provide the following functions:
+
+Wallet initialization
+Wallet de-initialization
+Account balance inquiry
+Transaction initialization
+Send transaction
+Query transaction receipt
+Stateless message call
+Brief Description of Ethereum/Polygon Transaction Interface Function Implementation
+
+Wallet initialization: The content implemented by this interface includes:
+Set the blockchain contract address
+Set whether the transaction specifies a chain ID
+Set chain ID
+Wallet de-initialization: The content implemented by this interface includes:
+Reset private key information
+Release of blockchain network information resources
+Call the web3 interface provided by the protocol layer: de-initialize the web3 interface
+Account balance inquiry: The content implemented by this interface includes:
+Prepare message information required for account balance inquiry
+Call the web3 interface provided by the protocol layer: get the account balance
+Transaction initialization: This interface is mainly implemented to initialize the fields in the transaction structure. In addition to the three fields of signature v, r, and s, the transaction structure of Ethereum also has six fields including nonce, gasPrice, gasLimit, recipient, value, and data. Please note that the setting of the Nonce field of the transaction is not implemented in this interface, but is set at the time the transaction is sent, because the user may create multiple transaction messages at the same time, and the order in which these messages are sent to the blockchain network is not sure. In addition, it should be noted that the Nonce and gasPrice fields should be obtained from the blockchain by calling the corresponding web3 interface of the protocol layer. This method requires access to the network and will generate a certain amount of network traffic. The content implemented by this interface includes:
+Set the GasPrice field of the transaction
+Set the GasLimit field of the transaction
+Set the Recipient field of the transaction
+Set the Value field of the transaction
+Send transaction
+The content implemented by this interface includes:
+Determine to send synchronous/asynchronous identification (if any)
+Identified as synchronous sending: call the raw transaction interface provided by the protocol layer: raw transaction synchronous sending
+Identified as asynchronous transmission: call the raw transaction interface provided by the protocol layer: raw transaction asynchronous transmission
+Check transaction receipt: The content implemented by this interface includes:
+Prepare to query message information required for transaction receipt
+Call the web3 interface "get transaction receipt" provided by the protocol layer once every specified time until the timeout period is triggered
+Return query result
+Send Ether
+The content implemented by this interface includes:
+Set the Nonce field of the transaction
+Set the Value field of the transaction
+Set the Data field of the transaction
+Execute sending transaction
+Stateless message call: The content implemented by this interface includes:
+Prepare message information needed for stateless message call
+Call the web3 interface "blockchain stateless call" provided by the protocol layer
+Brief Description of PlatON Transaction Interface Function Implementation
+
+There are three main differences between PlatON and Ethereum:
+
+The addresses are different.
+PlatON adds an additional bitcoin like Bech32 format address to Ethereum. Therefore, when initializing a transaction, you need to set HRP (Human-readable Parts) for the address in addition to the parameters that Ethereum requires. The wallet will automatically use the specified address format when invoking RPC.
+The names of functions invoked through RPC are different.
+There is no difference for BIOT SDK users.
+PlatON must use the specified blockchain ID mode. EIP-155 describes two data formats that can be used for transactions, but PlatON supports only one, more detail see Brief Description of Raw Transaction Interface.
+
+Note that the two additional address fields for PlatON should be placed at the end of the data structure without compromising the integrity of the reused Ethereum data structure. Disrupting the integrity of Ethereum's data structure will make the implementation methods associated with that data structure in Ethereum unreusable.
+
+Brief Description of PlatONE Transaction Interface Function Implementation
+
+Compared with Ethereum, the differences are listed below:
+
+Transaction initialization
+In addition to the initialization steps described by Ethereum, PlatONE also:
+Set transaction type field
+It can be seen from the foregoing that the difference between PlatONE and Ethereum is very small. When designing the data structure and code implementation of PlatONE, the inheritance of the data structure and the reuse of code implementation should be considered, which not only reduces the amount of code, but also facilitates maintenance. For example, the composition of the transaction structure. The transaction structure of PlatONE has one more transaction type field than the transaction structure of Ethereum
+
+Brief Description of FISCO BCOS Transaction Interface Function Implementation
+
+Compared with Ethereum, the differences please refer to FISCO BCOS official documentation https://fisco-bcos-documentation.readthedocs.io/en/latest/docs/design/protocol_description.html.
+
+When designing the data structure and code implementation of FISCO BCOS, the inheritance of data structure and the reuse of code implementation should be considered, so as to reduce the amount of code and facilitate maintenance. The following four fields have been added to the transaction structure:
+
+blockLimit
+chainId
+groupId
+extraData
+Brief Description of Fabric Transaction Interface Function Implementation
+
+Wallet initialization: The content implemented by this interface includes:
+Request space for the wallet structure.
+Set up the private key path/index of the account.
+Set up the certificate of the account.
+If you need to support TLS, set the root certificate to be used when TLS verifies the identity of the server.
+If TLS needs to support two-way authentication, the client's private key path/index and corresponding certificate should also be set.
+Set node information, such as endorsement node and sorting node numbers, address, host name. If TLS is enabled, the hostname field will be used to authenticate the server's identity, which is the same as the CN field in the server's TLS certificate. If TLS is not enabled, the host name is ignored.
+Initialize the HTTP2 environment.
+Wallet de-initialization: The content implemented by this interface includes:
+Free the space applied for the account private key path/index and certificate.
+Free the space applied for TLS client private key path/index and certificate (if TLS is enabled).
+Free the space applied for the root certificate (if TLS is enabled).
+Free the space applied for endorsement/sorting node information.
+Uninitialized the HTTP2 environment.
+Free the space applied for the wallet structure.
+Transaction initialization: The content implemented by this interface includes:
+Set the attributes of the chain code to be accessed by the transaction: path, name, version.
+Set the channel name of the client that initiates the transaction.
+Set the organization name of the client that initiates the transaction.
+Wallet de-initialization: The content implemented by this interface includes:
+Free the space applied for chain code property.
+Free the space applied for channel name.
+Free the space applied for organization name.
+Transaction parameter setting: The content implemented by this interface includes:
+Set the timestamp of the transaction initiation.
+Set the parameters of the transaction.
+Send transaction The content implemented by this interface includes:
+Send the submit messages.
+Send the evaluate messages.
