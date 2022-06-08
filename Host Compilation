@@ -1,0 +1,45 @@
+Host Compilation
+Host compilation means that the compilation environment is consistent with the target environment, for example, to compile x86 programs on x86. There are usually two scenarios for using Host compilation:
+
+In the software commissioning phase, the software functions are tested on the PC.
+The target software itself runs on devices based on x86/x86-64 processors, such as some edge gateways.
+Use Linux as The Compilation Environment
+
+Compile Host based on Linux distribution (such as Ubuntu). Generally, there is no need to configure the compilation environment, just make sure that the dependent software has been installed.
+Follow the steps below to compile:
+
+Store the SDK source code in a path that meets the requirements of BIOT Framework SDK Source Path.
+Optional: Put the ABI JSON file of the smart contract to be called in the corresponding directory of <SDKRoot>/demo/demo_<protocol>/demo_contract (see section 3.3).
+In the <SDKRoot> directory, execute the following command:
+$make bIOlibs
+After the compilation is complete, the generated library file is in ./lib. The application should include the header files under ./include and link the libraries under ./lib to achieve the function of accessing the blockchain
+
+Use Linux as The Compilation Environment
+
+Independent Cross-Compilation Environment
+
+Independent compilation environment means that arm-oe-linux-gnueabi-gcc (or similar cross-compiler) has been installed in the Linux system and can be called independently.
+
+The SDK requires at least the following environment variables to be set in the system to point to the cross-compilation environment:
+
+Environment variable	Description
+CC	Point to the cross compiler gcc executable file
+AR	Point to the cross compiler ar executable file
+When the environment variables of CC and AR are not defined in the environment, GNU make will default CC=cc and AR=ar. Usually, the gcc and bintuils compilation environment of the host are installed in the Linux system. Therefore, if the above environment variables are not defined, the host compilation will be executed.
+
+When configuring a cross-compilation environment, it is usually necessary to execute a specific shell script to set the above environment variables to point to the cross-compilation environment. For the bash shell, commands similar to the following are usually executed:
+
+$source cross_compiler_config.sh  
+or
+
+$. cross_compiler_config.sh 
+The cross_compiler_config.sh in the above example is not a script in this SDK, but a configuration script in the cross-compilation environment. For the specific name and location, please refer to the relevant instructions of the cross-compilation environment.
+The source or . in the example is necessary, which makes the script execute in the context of the current shell, so the modification of environment variables in this script can only take effect in the current shell.
+
+You can execute the following command to view the environment variable settings in the current shell:
+
+$export
+If the environment variables CC and AR have been set, you can execute the following command to view the current version of CC and AR to confirm whether the desired cross-compilation environment has been pointed to:
+
+${CC} -v  
+${AR} -v  
