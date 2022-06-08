@@ -1,0 +1,21 @@
+The RPC layer implements the encapsulation of the specific link that sends data to the blockchain node, and provide services to the protocol layer. The RPC layer is an abstraction of the concrete realization of the sending link, so that the BIOT SDK can be transplanted to different operating environments more conveniently.
+
+Scalable Design of RPC Layer
+
+The RPC layer expands down to implement different sending links according to the specific operating environment. For example, some environments provide the transmission tool cURL, you can use curl to send and receive messages. Some environments do not support cURL, but provide AT commands to send and receive messages. The RPC layer encapsulates these different implementations. The layer provides a unified interface, so that the protocol layer does not need to care about the specific transmission link, and only needs to call the unified interface when sending and receiving messages. The RPC layer's encapsulation of different links also facilitates the expansion of more link implementations.
+
+Extension of RPC Layer to cURL
+
+cURL is a file transfer tool that uses URL syntax to work under the command line. It supports multiple communication protocols such as FTP, FTPS, HTTP, and HTTPS. When the RPC layer enables cURL support, in addition to the global resource initialization of cURL when the SDK is initialized, it must also be implemented at the RPC layer:
+
+cURL session initialization
+Set the URL format to<protocol>://<target name | IP>:<port>
+Configure the protocol supported by cURL
+Configure SSL certificate (if needed)
+Set HTTP type to POST
+Set the timeout period (response timeout, connection timeout)
+Set HTTP header information
+Set the callback function of HTTP message response and receive buffer
+Set POST content
+Perform RPC request
+CURL resource cleaning and recycling
