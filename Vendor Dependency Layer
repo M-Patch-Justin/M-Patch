@@ -1,0 +1,17 @@
+The Biot SDK will run on different hardware platforms, because the various hardware platforms provided by various vendors have various functions. For example, some hardware platforms provide hardware implementation of random number generator, while some hardware platforms provide not only hardware implementation of random number generator, but also TEE environment. In order to leverage the platform's resources and to isolate changes in the software, the Biot SDK designed a vendor dependencylayer. The vendor dependency layer provides services such as random number generator, secure storage, encrypted signature and so on to the wallet in the interface layer. When the hardware platform can provide the corresponding implementation, the vendor dependency layer will call the corresponding hardware function through the interface reserved by the vendor. When the hardware platform does not provide some services, the corresponding functions are realized by pure software.
+
+Software Implementation of The Vendor Dependency Layer
+
+The vendor dependency layer should provide a pure software implementation of the required services. This allows the Biot SDK to function properly even when the hardware does not provide the required services. The vendor dependency layer should cover the necessary hardware services as a standard, providing at least a software-only implementation of the following functions:
+
+Random number generator
+Signature (such as ECDSA used by Ethereum)
+Secure storage (such as storing private keys in an encrypted manner)
+Hash algorithm (such as Keccak-256 used by Ethereum)
+TEE Support
+
+The design of BIOT should consider the support of TEE environment. For hardware with a TEE environment, BIOT should be able to put sensitive information in the TEE environment with a small amount of modification. To meet this goal, the wallet is designed to meet the following criteria:
+
+Wallet related data structure modular design
+Wallet related implementation modular design
+Sensitive information related to the wallet is not reflected outside the wallet
