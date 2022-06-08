@@ -1,0 +1,22 @@
+If the SDK is ported to RTOS, the following points should generally be followed:
+
+1. Remove The Dependency On Curl
+
+curl is a communication protocol library under Linux, used in the SDK to support http/https communication. Blockchain nodes usually use the http/https protocol to communicate.
+
+For modules using RTOS, you should add a call package to the module's http/https interface in<SDKRoot>/vendor/platform/<platform_name>/src/rpc, and modify <SDKRoot>/vendor/platform/<platform_name>/scripts/gen.py, close RPC_USE_LIBCURL and set the new RPC USE OPTION.
+
+2. Remove Dependence on The File System
+
+The SDK uses files as a persistent storage method for the wallet. If the RTOS does not support the file system, you should modify the file operation related to  BiotGetFileSize , BiotWriteFile , BiotReadFile , BiotRemoveFile ,from <SDKRoot>/vendor/platform/<platform_name>/port_xx/biotplatform_internal.c, modify the read/write file to the persistence method supported by the system.
+
+3. Memory Trimming
+
+If the memory of the target system is too tight to load, you can try to trim the memory. The points that can be cropped include:
+
+a) According to actual needs, in <SDKRoot>/makefile, close the blockchain protocol that does not need to be supported b) According to the actual situation, reduce the storage space BOAT_XXX_NODE_URL_MAX_LEN of the node URL string in <SDKRoot>/api_<protocol>.h c) According to actual needs, reduce the number of wallets BIOT_MAX_WALLET_NUM in <SDKRoot>/include/biotwallet.h d) According to the actual situation, reduce the maximum number of members supported in a LIST in <SDKRoot>/include/biotrlp.h MAX_RLP_LIST_DESC_NUM e) According to the actual situation, reduce the self-increment step size of web3 data buffer in /sdk/protocol/common/web3intf/web3intf.h WEB3_STRING_BUF_STEP_SIZE
+
+If After The Above Cropping, The Memory is Still Too Large To Fit, Please Try:
+
+a) According to actual needs, the simple RLP encoding method for specific transaction parameters is used to replace the recursive general RLP encoding method in <SDKRoot>/sdk/rlp
+b) According to actual needs, tailor the APIs that are not actually used
