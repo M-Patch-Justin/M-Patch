@@ -1,0 +1,31 @@
+If the module development environment uses GNU make as the compilation project (makefiles in the source code directories at all levels), you can adjust the compilation configuration for the BIOT
+SDK and incorporate it into the integrated module development environment for compilation.
+
+Usually, the example of the customer code is provided in the module development environment, and the compilation configuration of the example code of the customer is included in the compilation system.First copy the <SDKRoot> directory (boatiotsdk is the directory name in the following example) to the source code in the module development environment, and then modify the Makefile in example directory, to add a target to compile BIOT Framework SDK.
+
+Assuming that in the original compilation environment, the Makefile of the example in customer source code is as follows:
+
+.PHNOY: all  
+all:  
+    $(CC) $(CFLAGS) example.c -o example.o 
+
+clean:  
+    -rm -rf example.o
+
+Adjusted to:
+
+.PHNOY: all biotsdkall biotsdkclean  
+all: biotsdkall  
+    $(CC) $(CFLAGS) example.c -o example.o 
+
+clean: biotsdkclean    
+    -rm -rf example.o  
+
+biotsdkall:
+    make -C biotsdk biotlibs
+
+biotsdkclean:
+    make -C biotsdk clean
+Among them, biotsdk is the directory where the SDK is located, and the -C parameter after make specifies to enter the biotsdk directory and then compile according to Makefile.
+
+Note: In the Makefile, the command under target must start with a Tab (ASCII code 0x09), not a space.
