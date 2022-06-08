@@ -1,0 +1,7 @@
+SDK Initialization and Destruction
+Before calling the SDK, you must call BIotSdkInit() to initialize the global resources of the SDK:
+
+BIOT_RESULT BIotSdkInit(void);
+If the SDK is no longer needed, call BIotSdkDeInit() to release resources:
+
+void BIotSdkDeInit(void);
