@@ -1,0 +1,135 @@
+The protocol layer is located in the second layer of the BIAT SDK, which mainly implements the protocol part of each blockchain. For Ethereum series blockchains, their protocols are very similar, such as Polygon, PlatON, PlatONE and FISCO BCOS.
+The protocol layer is supported by the RPC layer.
+
+Ethereum's Protocol Layer Implementation
+
+Raw Transaction Interface
+
+The raw transaction interface of the protocol layer provides services for "sending transactions" to the transaction interface of the interface layer.Raw transaction upwards should provide at least the following interfaces:
+
+raw transaction sent asynchronously
+In addition, raw transaction can also choose to provide the following interfaces:
+
+raw transaction sent synchronously
+Brief Description of Raw Transaction Interface
+
+raw transaction sent asynchronously
+This interface implements the data encoding of raw transaction, such as RLP encoding of each field, hash calculation, signature, etc., and calls the web3 interface within the protocol layer to send it to the blockchain, and returns directly without waiting for the transaction be confirmed. There are two types of data encoding: specifying the chain ID and not specifying the chain ID. Refer to EIP-155 for details https://eips.ethereum.org/EIPS/eip-155.
+The content implemented by this interface includes:
+
+If the data encoding is not specifying the chain ID:
+Perform RLP encoding on the six fields of nonce, gasPrice, gasLimit, recipient, value, and data of the transaction
+Calculate the keccak-256 hash value of the RLP encoding in the previous step
+Sign the hash value of the previous step, and get the three values of parity, r, and s
+Perform RLP encoding on the nine fields of transaction nonce, gasPrice, gasLimit, recipient, value, data, v, r, s, where v = parity + 27, parity, r, s have been given in the previous step
+Call the web3 interface "send rawtransaction" to send to the blockchain
+If the data encoding is specifying the chain ID:
+Perform RLP encoding on the nine fields of transaction nonce, gasPrice, gasLimit, recipient, value, data, v, r, s, where v = chainID, r = 0, s = 0
+Same as step 2 of "not specifying the chain ID"
+Same as step 3 of "not specifying the chain ID"
+Perform RLP encoding on the nine fields of the transaction, including nonce, gasPrice, gasLimit, recipient, value, data, v, r, s, where v = Chain ID * 2 + parity + 35, and parity, r, s have been given in the previous step
+Same as step 5 of "not specifying the chain ID"
+NOTE: EIP-155 is mandatory for Polygon.
+
+raw transaction sent synchronously
+This interface executes "raw transaction asynchronous sending" and waits for the transaction to be confirmed after success or timeout. The content implemented by this interface includes:
+
+Execute raw transaction synchronously
+Execute query transaction receipt
+Wait for the transaction to be confirmed or return after timeout
+Web3 Interface
+
+In addition to the raw transaction interface, the protocol layer should also provide the following web3 interfaces to the upper layer:
+
+web3 interface initialization
+web3 interface de-initialization
+Get the content stored in the specified location of the blockchain
+Get the number of account transactions
+Get blockchain gasPrice
+Get account balance
+Get transaction receipt
+Blockchain stateless call
+Send raw transaction
+Looking through the RPC-related documents of Ethereum, you can know that Ethereum provides about 64 RPC methods. In the BIAT SDK, we only implement the above
+The resources of the SDK operating environment are limited. The above-mentioned RPC methods are several methods commonly used in data on the blockchain. If customers need other RPC methods in the future, BoAT SDK will provide them in a customized way.
+Brief Description of Web3 Interface
+
+web3 interface initialization
+The content implemented by this interface includes:
+Web3 interface resource application, Such as the memory space application of RPC content, Application for the memory space of the json string used to request or respond from the blockchain, Request for memory space of the parsed result of the response json string
+Initialize web3 message ID
+Perform "RPC interface initialization" of the RPC layer
+web3 interface de-initialization
+The content implemented by this interface includes:
+The release of web3 interface resources, such as the release of memory space for RPC content,It is used to release the memory space of the json string that requests or responds from the blockchain, The memory space of the parsed result of the response json string is released.
+Perform "RPC interface de-initialization" of the RPC layer
+Get the content stored in the specified location of the blockchain
+The content implemented by this interface includes:
+web3 message ID increment
+Package the request message of
+"Get the content stored in the specified location of the blockchain"
+Call the RPC method "web3_getStorageAt" to send the request message to the blockchain
+Parse the received block chain response message and return the analysis result
+Get the number of account transactions
+The content implemented by this interface includes:
+web3 message ID increment
+Package the request message of "Get account transactions"
+Call the RPC method "web3_getTransactionCount" to send the request message to the blockchain
+Parse the received blockchain response message and return the analysis result
+Get the gasPrice of the blockchain
+The content implemented by this interface includes:
+web3 message ID increment
+Package the request message of "Get the gasPrice of the blockchain"
+Call the RPC method "web3_gasPrice" to send the request message to the blockchain
+Parse the received blockchain response message and return the analysis result
+Get account balance
+The content implemented by this interface includes:
+web3 message ID increment
+Package the request message of "Get account balance"
+Call the RPC method "web3_getBalance" to send the request message to the blockchain
+Parse the received blockchain response message and return the analysis result
+Get transaction receipt
+The content implemented by this interface includes:
+web3 message ID increment
+Package the request message of "get transaction receipt"
+Call the RPC method "web3_getTransactionReceiptStatus" to send the request message to the blockchain
+Parse the received blockchain response message and return the analysis result
+Blockchain stateless call
+The content implemented by this interface includes:
+web3 message ID increment
+Package the request message of "Blockchain stateless call"
+Call the RPC method "web3_call" to send the request message to the blockchain
+Parse the received blockchain response message and return the analysis result
+Send raw transaction
+The content implemented by this interface includes:
+web3 message ID increment
+Package the request message of "Send raw transaction"
+Call the RPC method "web3_sendRawTransaction" to send the request message to the blockchain
+Parse the received blockchain response message and return the analysis result
+Protocol Layer Implementation of PlatON
+
+The protocol implementation of PlatON is exactly the same as that of Ethereum except that PlatON only supports data encoding using specified chain ID.
+
+Protocol Layer Implementation of PlatONE
+
+The implementation of PlatONE's protocol layer is almost the same as that of Ethereum. The only difference is that the data field of raw transaction is filled with one more transaction type encoding, and has one more transaction type field in the RLP process of raw transaction. Because the data field is filled by users who use BIOT SDK before calling BIOT SDK-related APIs, the protocol layer of PlatONE can reuse the protocol layer of Ethereum.
+
+Protocol Layer Implementation of Fabric
+
+Brief Description of Fabric Protocol Layer
+
+The Fabric protocol layer mainly contains proposal protocol and transaction protocol, and the query protocol is the same as the proposal protocol. Proposal agreement and transaction agreement are respectively as follows Figure 4-5,Figure 4-6:
+ Fabric proposal protocol struct
+Figure 4-5 Fabric proposal protocol struct
+ Fabric transaction protocol struct
+Figure 4-6 Fabric transaction protocol struct
+
+When Fabric client launches a deal,will first send proposal to endorse node, get the data of proposal signature returned after endorse node signatures. then the Fabric client puts the data endorse signature together with transaction parameters according to the transaction message format and sends to order nodes. After order node check through, it will updating the state of the chain. The detailed transaction process is shown in Figure 4-6,This figure is taken from the document. For more information on Fabric, refer to the Fabric documentation: https://hyperledger-fabric.readthedocs.io/en/release-1.4/.
+Fabric protocol interface implementation
+
+In the Fabric message, the fields in the protocol are serialized through ProtoBuf and then sent out through the HTTP2 protocol. As can be seen from the preface section, there are some duplicates and similarities between the proposal and transaction messages, and these duplicates can be split into a submodule for easier reuse. One possible split is listed as follows:
+
+channelHeader packaging
+signatureHeader packaging
+proposal load packaging
+transaction load packaging
