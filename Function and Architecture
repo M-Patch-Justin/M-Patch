@@ -1,0 +1,47 @@
+BIOT Framework is a C language blockchain client framework software for cellular modules, which is easy to be ported to various modules and helps IoT applications based on cellular modules connect to the blockchain and access on-chain services
+The functions provided by the BIOT Framework SDK to IoT applications include initiating on-chain transactions, automatic generation of smart contract C interface code, calling smart contracts, and managing blockchain keys.
+
+Supported blockchain:
+Ethereum/Polygon
+PlatON
+PlatONE
+FISCO-BCOS
+Hyperledger Fabric
+Huawei BCS
+Chainmaker
+
+Supported Target Operating System:
+Linux
+RTOS
+
+Supported Build Operating System:
+Linux/Cygwin
+
+Main features:
+Blockchain account (wallet) parameter configuration
+Blockchain key pair generation
+Blockchain account creation/loading/unloading
+Transfer transaction
+Smart contract call (automatically generate C call interface)
+Smart contract call (manual construction) 
+
+<SDKRoot>
+|
++---build           | Directory to store object and executable files
++---demo            | Demo application
++---docs            | API reference manual
++---vendor          | Special vendor dependency
+|   \---common      |     Universal soft algorithms implementation
+|   \---platform    |     Dependency of different platforms
++---include         | Header files for application to include
++---lib             | Lib files for application to link with
++---sdk             | SDK source
+|   +---third-party |     Third party libraries
+|   +---include     |     Header files for SDK internal use
+|   +---protocol    |     Blockchain client protocol implementation
+|   +---rlp         |     RLP encoder
+|   +---utilities   |     Utility APIs
+|   +---wallet      |     SDK entry API implementation
++---tests           | Test cases
++---tools           | Tools for generating C interface from contract ABI
+
