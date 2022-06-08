@@ -1,0 +1,45 @@
+To call the automatically generated contract interface, first initialize a transaction object, and then call the generated contract interface.
+Even if the called contract function does not change the state of the blockchain, a transaction object needs to be initialized first.
+
+Take Ethereum as an example (different blockchain protocol parameters are different):
+
+BIOT_RESULT BiotEthTxInit(BiotEthWallet *wallet_ptr,
+                          BiotEthTx *tx_ptr,
+                          BBOOL is_sync_tx,
+                          BCHAR *gasprice_str,
+                          BCHAR *gaslimit_str,
+                          BCHAR *recipient_str)
+                          
+                          parameter name	Parameter Description
+wallet_ptr	The wallet pointer that this transaction is combined with.
+tx_ptr	Pointer a transaction object.
+is_sync_tx	For a stateful transaction, specify BIOT_TRUE to wait until the transaction is mined.
+Specifiy BIOT_FALSE to allow multiple transactions to be sent continuously in a short time.
+For a state-less contract call, this option is ignored.
+gasprice	A HEX string representing the gas price (unit: wei) to be used in the transaction.
+Set <gasprice> = NULL to obtain gas price from network.
+BiotEthTxSetGasPrice() can later be called to modify the gas price at any time before the transaction is executed.
+gaslimit	A HEX string representing the gas limit to be used in the transaction.
+BiotEthTxSetGasLimit() can later be called to modify the gas limit at any time before the transaction is executed.
+recipient_str	A HEX string representing the recipient address, in HEX format like"0x19c91A4649654265823512a457D2c16981bB64F5".
+BiotEthTxSetRecipient() can later be called to modify the recipient at any time before the transaction is executed.
+return value: This function returns BIOT_SUCCESS if initialization is successful. Otherwise it returns one of the error codes.
+
+E.g. :
+
+BiotEthTx tx_ctx;
+BIOT_RESULT result;
+result = BiotEthTxInit(wallet_ptr,
+                       &tx_ctx,
+                       BIOT_TRUE,
+                       NULL,
+                       "0x333333",
+                       "0x9e7f3ae22cf97939a2e4cd68dd33bb29268a1ec9");
+Call Contract Interface
+
+After completing the transaction initialization, you can call the automatically generated contract interface:
+
+E.g. :
+
+BCHAR *result_str;
+result_str = StoreRead_saveList(&tx_ctx, (BUINT8 *)"HelloWorld");
