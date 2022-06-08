@@ -1,0 +1,23 @@
+Smart contracts are executable codes on the blockchain, executed on blockchain virtual machines (such as EVM and WASM), and called by the client in the form of remote procedure calls (RPC).
+
+Different virtual machines and contract programming languages have different application binary interfaces (ABI). When a client calls a contract function through RPC, it must follow the corresponding ABI assembly interface.
+
+The SDK provides the following tools to generate the corresponding C interface code according to the contract ABI, so that in the C code, the smart contract on the chain can be called through the generated interface code like a general C function:
+
+Conversion tool	use
+<SDKRoot>/tools/eth2c.py	According to the ABI of Ethereum Solidity, generate C calling code
+<SDKRoot>/tools/fiscobcos2c.py	According to the ABI of FISCO-BCOS Solidity, generate C calling code
+<SDKRoot>/tools/platoneSolidity2c.py	Generate C calling code according to PlatONE (Solidity) ABI
+<SDKRoot>/tools/platoneWASM2c.py	Generate C calling code according to PlatONE (WASM) ABI
+Contract programming languages generally support "object-oriented". However, since C language does not support "object-oriented" and cannot use a unified paradigm to transfer objects, only contract functions whose parameter types are consistent with the built-in types of C language can be converted into C calling code by tools. The specific input types of support contract functions are described in the Contract Call (Automatically Generated) chapter.
+
+Before making the call, you first need to compile the contract, and copy the ABI interface description JSON file generated in the contract compilation to the corresponding directory of the SDK:
+
+Contract ABI storage path	use
+<SDKRoot>/demo/demo_ethereum/demo_contract	Copy the ABI JSON file of Ethereum Solidity to this directory
+<SDKRoot>/demo/demo_fiscobcos/demo_contract	Copy the ABI JSON file of FISCO-BCOS to this directory
+<SDKRoot>/demo/demo_platone/demo_contract\Solidity	Copy PlatONE (Solidity) ABI JSON file to this directory
+<SDKRoot>/demo/demo_platone/demo_contract\WASM	Copy PlatONE (WASM) ABI JSON file to this directory
+Note: ABI's JSON file must have ".json" as the file name suffix.
+
+During the demo compilation process, the automatic generation tool will generate the corresponding C interface calling code according to the contract ABI JSON file. If the automatic generation of C interface fails during compilation, you need to delete the unsupported ABI JSON file (or delete the unsupported interface) from the corresponding directory of <SDKRoot>/contract, write the C code manually, and assemble the ABI interface. For details, please refer to the Transfer Call chapter.
