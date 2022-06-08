@@ -1,0 +1,181 @@
+Restrictions on Automatically Generated Contracts
+
+Since contract programming languages generally support object-oriented, and C language does not support object-oriented, and cannot use a unified paradigm to transfer objects, only contract functions whose parameter types are consistent with the built-in types of C language can be converted into C calling code by tools.
+
+For contracts written by Solidity, the tool supports the following parameter types:
+
+address
+bool
+uint8
+uint16
+uint32
+uint64
+uint128
+uint256
+int8
+int16
+int32
+int64
+int128
+int256
+bytes1
+bytes2
+bytes3
+bytes4
+bytes5
+bytes6
+bytes7
+bytes8
+bytes9
+bytes10
+bytes11
+bytes12
+bytes13
+bytes14
+bytes15
+bytes16
+bytes17
+bytes18
+bytes19
+bytes20
+bytes21
+bytes22
+bytes23
+bytes24
+bytes25
+bytes26
+bytes27
+bytes28
+bytes29
+bytes30
+bytes31
+bytes32
+bytes
+string
+T[N] : N > 0, N is an integer, T is Any of the above types.
+T[] : T is Any of the above types except T[N].
+For WASM contracts written in C++, the tool supports the following parameter types:
+
+string
+uint8
+uint16
+uint32
+uint64
+int8
+int16
+int32
+int64
+void
+If the contract function contains unsupported parameter types, the automatic conversion tool will not be able to complete the conversion, and the contract must be written manually.
+
+Automatically Generated Contract Call Interface
+
+The successfully generated contract call interface is the following C function:
+
+BCHAR *<Contract ABI JSON file name >_< Contract function name>(<Wallet type> *tx_ptr, …);
+
+E.g. :
+BCHAR *StoreRead_saveList(BiotEthTx *tx_ptr, Bbytes32 newEvent);
+The first parameter of the calling interface is always the pointer of the initialized transaction object.
+
+If the call is successful, the return value of the call interface is a string in JSON format.
+
+Note: The memory of the string is allocated inside the SDK. The application must copy the string to the memory allocated by the application for subsequent use, and must not modify the content of the returned string or save the pointer to the string for use.
+
+The contract function that changes the state of the blockchain refers to any function that changes the persistent storage information in the blockchain ledger. For example, functions that write and modify member variables in the contract are all contract functions that change the state of the blockchain.If a contract function only modifies the local variables in the function, but does not modify the contract member variables, then the contract function is a contract function that does not change the state of the blockchain.
+
+In some contract programming languages, the two types of contract functions have a clear modifier difference on the prototype, while in other programming languages, there is no obvious mark. In the ABI, these two types of functions have different identifiers.
+
+For example, take the following Ethereum Solidity contract as an example:
+
+contract StoreRead {
+    bytes32[] eventList;
+
+    function saveList(bytes32 newEvent) public {
+        eventList.push(newEvent);
+    }
+
+    function readListLength() public view returns (uint32 length_) {
+        length_ = uint32(eventList.length);
+    }
+function readListByIndex(uint32 index) public view returns (bytes32 event_) {
+    if (eventList.length > index) {
+        event_ = eventList[index];
+    }
+}
+After the contract is compiled, the ABI corresponding to the three functions are described as follows:
+
+"abi": [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "newEvent",
+          "type": "bytes32"
+        }
+      ],
+      "name": "saveList",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0xe648ba32"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "readListLength",
+      "outputs": [
+        {
+          "name": "length_",
+          "type": "uint32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xd0a80818"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "index",
+          "type": "uint32"
+        }
+      ],
+      "name": "readListByIndex",
+      "outputs": [
+        {
+          "name": "event_",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xaa1a7122"
+    },
+]
+In the above contract, eventList is a member variable of the contract. saveList() will change the value of eventList, which is a contract function that changes the state of the blockchain; readListLength() and readListByIndex() fuction have a view modifier and only reads the value of eventList. It is a contract function that does not change the state of the blockchain.
+
+In particular, there are significant differences in the principles of invoking between smart contract functions that update the ledger and those who don’t, even though the two types of functions are quite similar in prototype. The same is true for the interface functions in C language generated through the conversion tool.
+
+Any change to the state of the blockchain needs to be implemented through blockchain transaction and reach a consensus across the entire network. The contract function that changes the state of the blockchain is called asynchronously. When called, it merely initiates the blockchain transaction, and the contract is not executed until the blockchain network packages the transaction into a block. Take StoreRead demo as an example. The related calling code is as follows:
+
+  BCHAR *result_str;
+  result_str = StoreRead_saveList(&tx_ctx, (BUINT8*)"HelloWorld");
+The return value result_str obtained from the StoreRead_saveList function is only the hash value used to identify the transaction, not the return value of the StoreRead contract saveList function. Therefore, when designing a smart contract, the public interface function that changes the state of the blockchain, the information it tries to return should be stored in the contract member variable. To get the value of the changed blockchain, refer to the following code, where the "hash" is the hash of the transaction obtained in the previous step.
+
+BUINT32 list_len;
+  if (BIOT_SUCCESS == BiotEthGetTransactionReceipt(hash))
+  {
+    list_len = StoreRead_readListLength(&tx_ctx);
+    result_str = StoreRead_readListByIndex(&tx_ctx, list_len - 1);
+  }
+  
+  When BiotEthGetTransactionReceipt (hash) return value is BIOT_SUCCESS, shows the state of the corresponding change block chain contract function call has been mined. Assume that the contract will only be changed by the user, and then get the length list_len of the eventList array from StoreRead_readListLength().The value "HelloWorld" is uploaded by StoreRead_saveList() through a call to StoreRead_readListByIndex().
+
+Contract functions that do not change the state of the blockchain, only need the blockchain node to read the existing information in its database, without transactions and consensus. So the call to this type of function is a synchronous call. The return value is the return value in the form of the contract function. The readListLength and readListByIndex functions of the StoreRead contract are such contract functions.
+
+Note: This code can only be pseudocode, in order to facilitate understanding, the return value needs to be converted accordingly. For details, see Demo_ethereum_Storeread.c.
