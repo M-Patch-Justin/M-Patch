@@ -1,0 +1,41 @@
+General tools exist independently of each layer and are used to generate C language interfaces for accessing blockchain smart contracts. General tools should be implemented in scripting languages. Common tools include:
+
+Tool used to generate C language interface of Ethereum smart contract
+Tool used to generate C language interface of PlatONE smart contract
+Tool used to generate C language interface of FISCO BCOS smart contract
+Brief Description of General Tools
+
+Tool for Generating C Language Interface of Ethereum Smart Contract
+
+The commonly used programming language for Ethereum smart contracts is solidity. After solidity is compiled, a JSON file describing the contract interface will be generated. The JSON format of the contract interface is given by an array of function and/or event descriptions. The description of a function is a JSON object with the following fields:
+
+type: "function" , "constructor" , "receive" (Function to receive Ether) or "fallback"( Default function)
+name: Function name
+inputs: Object array, each array object will contain:
+name: parameter name；
+type: Authoritative type of parameter
+components: For tuple type
+outputs: An array of objects similar to inputs, which can be omitted if the function has no return value
+payable: If the function accepts Ether, it is true; the default is false
+stateMutability: One of the following values: pure (specified not to read the state of the blockchain), view (specified not to modify the state of the blockchain), nonpayable and payable (same as payable above)
+constant: True if the function is specified as pure or view
+For the generated C language contract interface, the corresponding relationship with the JSON object is as follows:
+
+JSON object	JSON object value	C language contract interface
+Type	/	/
+Name	/	Function name
+Inputs	Name	/	Function parameter name
+Type	/	Function parameter type
+components	/	/
+Outputs	/	The function return value, because the contract returns an http message, so the function should be processed as char*
+Payable	/	/
+stateMutability	/	/
+Constant	True	The function accesses the blockchain through the RPC method "web3_call"
+False	The function accesses the blockchain through the RPC method "web3_sendRawTransaction"
+Tool for Generating C Language Interface of PlatONE Smart Contract
+
+The commonly used PlatONE smart contract development language is C++. Like Ethereum, the PlatONE smart contract will also generate a JSON file describing the contract interface after being compiled. Its JSON field is the same as Ethereum's JSON field, and the correspondence between C language interface and JSON field is also consistent with Ethereum.
+
+Tool for Generating C Language Interface of FISCO BCOS Smart Contract
+
+The common development language for FISCO BCOS smart contracts is Solidity. 
