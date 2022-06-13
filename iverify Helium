@@ -1,0 +1,14 @@
+Attach your device to your computer by USB 
+Open USB device folder 
+Click on the mbed.html 
+If file does not exist go to os.mbed.com/platforms, select any board, click "add to your mbed compiler" 
+
+Select import button on the top left of the online compiler
+Import either full code file provided after payment or bare metal option 
+Click compile (if using Mbed bare metal profile add "requires": ["bare-metal"] to the mbed_app.json file 
+
+Your browser will download the executable file 
+
+Drag the executable file to the USB file 
+
+Press reset button
