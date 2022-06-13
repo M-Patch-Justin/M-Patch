@@ -433,7 +433,7 @@ int insert_post(const char* input) {
         return 0;
     }
 
-    new_post(our_chain, atoi(time_of),sender,binary[0],signature);
+    new_post(m_patch_chain, atoi(time_of),sender,binary[0],signature);
 
     return 1;
 }
@@ -531,7 +531,7 @@ int register_new_node(const char* input) {
 }
 
 //Save our chain in .noins format
-int save_chain_to_file(blockchain* in_chain, const char* file_name) {
+int save_chain_to_file(blockchain* m_patch, const char* file_name) {
 
     if(in_chain == NULL || file_name == NULL) return 0;
 
@@ -625,8 +625,8 @@ int verify_file_block(const char* input, int* curr_index) {
     if(valid_proof(our_chain->last_hash,trans_hash, the_proof)){
 
         transaction rec_trans[20] = {0};
-        int all_valid_trans = extract_transactions(our_chain, rec_trans, transactions);
-        int all_valid_posts = validate_posts(our_chain,new_post_array,atoi(posts_size));
+        int all_valid_trans = extract_transactions(m_patch_chain, rec_trans, transactions);
+        int all_valid_posts = validate_posts(m_patch_chain,new_post_array,atoi(posts_size));
 
         if(!all_valid_trans && !all_valid_posts) {
             printf("Invalid.\n");
@@ -636,7 +636,7 @@ int verify_file_block(const char* input, int* curr_index) {
 
 
         //Add block
-        blink* a_block = append_new_block(our_chain, atoi(index), atoi(time_gen),rec_trans, new_post_array, atoi(trans_size), atoi(posts_size), the_proof);
+        blink* a_block = append_new_block(m_patch_chain, atoi(index), atoi(time_gen),rec_trans, new_post_array, atoi(trans_size), atoi(posts_size), the_proof);
 
         printf(ANSI_COLOR_YELLOW);
         printf("READ BLOCK:\n");
@@ -670,7 +670,7 @@ int read_chain_from_file(blockchain* in_chain, const char* file_name) {
         int suc_read = verify_file_block(buffer,&curr_index);
 
         if(!suc_read) {
-            discard_chain(our_chain);
+            discard_chain(m_patch_chain);
             return 0;
         }
     }
@@ -725,7 +725,7 @@ int compare_length(const char* input) {
 }
 
 //Send out our complete chain as block messages
-int send_our_chain(const char* address) {
+int send_m_patch_chain(const char* address) {
 
     if(address == NULL) return 0;
     
@@ -733,18 +733,18 @@ int send_our_chain(const char* address) {
     if(strlen(address) > 200) return 0;
     printf("Sending blockchain to: %s, ", address);
     char message[MESSAGE_LENGTH] = {0};
-    if(our_chain->head == NULL) return 0;
-    blink* temp = our_chain->head;
+    if(m_patch_chain->head == NULL) return 0;
+    blink* temp = m_patch_chain->head;
     
     //Generate random chain id
     char rand_chain_id[60];
     srand(time(NULL));
     int r = rand();   
-    sprintf(rand_chain_id, "CHIN%010d%010d.", r, our_id);
+    sprintf(rand_chain_id, "CHIN%010d%010d.", r, m_patch_id);
     printf("Generated chain: '%s'\n", rand_chain_id);
 
     //Iterate over all blocks in chain
-    for(int i = 0; i < our_chain->length + 1; i++) {
+    for(int i = 0; i < m_patch_chain->length + 1; i++) {
         
         strcpy(message, "B "); //Add message type
 
@@ -965,7 +965,7 @@ void process_message(const char* in_msg) {
     if(!strcmp(token, "L"))
         compare_length(to_process + 2);
     if(!strcmp(token, "C"))
-        send_our_chain(to_process + 2);
+        send_m_patch_chain(to_process + 2);
     if(!strcmp(token, "V"))
         verify_acceptance_trans_or_post(to_process + 2);
     if(!strcmp(token, "I"))
@@ -983,7 +983,7 @@ int verify_acceptance_trans_or_post(const char* input) {
 
     sscanf(input,"%s %s", ip_address_out, signature);
 
-    void* entry= dict_access(our_chain->verified,signature);
+    void* entry= dict_access(m_patch_chain->verified,signature);
 
     if(entry == NULL)
         return 0;
@@ -1387,7 +1387,7 @@ int setup_chain_file(const char* in_chain_file) {
 
     //Get our config file from argument
     if(strlen(in_chain_file) < 300) {
-        strcpy(our_chain_file, in_chain_file);
+        strcpy(m_patch_chain_file, in_chain_file);
         return 1;
     }
 
